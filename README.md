@@ -76,7 +76,7 @@ The application runs in an **isolated Azure environment**, protected by a VNET. 
 |------------------|--------|
 | No public IP on App Server | Reduces exposure but requires routing through Bastion |
 | SSH key authentication | Prevents brute-force and password-based attacks |
-| Environment secrets stored securely | Protects sensitive data |
+| Environment File stored securely | Protects sensitive data |
 | Http through Reverse Proxy | Protects the Appserver VM from potential attacks from direct access from Internet |
 
 ---
@@ -86,6 +86,7 @@ The application runs in an **isolated Azure environment**, protected by a VNET. 
   ![Test Diagram2](https://github.com/user-attachments/assets/9e5068a6-1d35-4c9d-8085-6a6b0af2addf)
 - Topology of Azure Virtual Infrastructure:
   ![Screenshot 2025-04-07 135505](https://github.com/user-attachments/assets/2003c574-1704-4aba-b27a-abc9384bea25)
+  ![Screenshot 2025-04-07 141609](https://github.com/user-attachments/assets/38d74874-6963-4078-a95e-41dab0ce1cb6)
 - NSG och ASG Rules
   ![Screenshot 2025-04-07 141229](https://github.com/user-attachments/assets/8b423418-7567-4692-84d0-d9b80a59aabd)
 - GitHub Actions workflows Screenshot:
