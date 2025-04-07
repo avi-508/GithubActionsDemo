@@ -86,6 +86,8 @@ The application runs in an **isolated Azure environment**, protected by a VNET. 
   ![Test Diagram2](https://github.com/user-attachments/assets/9e5068a6-1d35-4c9d-8085-6a6b0af2addf)
 - Topology of Azure Virtual Infrastructure:
   ![Screenshot 2025-04-07 135505](https://github.com/user-attachments/assets/2003c574-1704-4aba-b27a-abc9384bea25)
+- NSG och ASG Rules
+  ![Screenshot 2025-04-07 141229](https://github.com/user-attachments/assets/8b423418-7567-4692-84d0-d9b80a59aabd)
 - GitHub Actions workflows Screenshot:
   ![Screenshot 2025-04-07 140122](https://github.com/user-attachments/assets/f352b511-501a-45c5-a635-f1b9fdebe770)
 - Code snippets
