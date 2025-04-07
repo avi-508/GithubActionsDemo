@@ -66,9 +66,7 @@ The application runs in an **isolated Azure environment**, protected by a VNET. 
 |------|-------------|-------|
 | 1. | Push code to GitHub master branch | Git |
 | 2. | GitHub Actions triggers workflow | GitHub |
-| 3. | Build app using `dotnet publish` | GitHub runner |
-| 4. | Use `scp` to transfer published app to App Server | SSH inside CI workflow |
-| 5. | Restart app using `systemctl restart myapp` | SSH in CI |
+| 3. | Build and deloy app to VM | using GitHub self-hosted runner |
 
 ---
 
@@ -83,21 +81,95 @@ The application runs in an **isolated Azure environment**, protected by a VNET. 
 
 ---
 
-### ✨ **Extra Suggestions**
-- Include the architecture diagram you created in your report
+### ✨ **Additional Screenshots**
+- Architecture diagram
   ![Test Diagram2](https://github.com/user-attachments/assets/9e5068a6-1d35-4c9d-8085-6a6b0af2addf)
 - Topology of Azure Virtual Infrastructure:
   ![Screenshot 2025-04-07 135505](https://github.com/user-attachments/assets/2003c574-1704-4aba-b27a-abc9384bea25)
-- GitHub Actions workflows:
-  
-- Use bullet points and tables for clarity
-- Optionally include sample code snippets (e.g., `systemd` service file or `yaml` GitHub Action)
+- GitHub Actions workflows Screenshot:
+  ![Screenshot 2025-04-07 140122](https://github.com/user-attachments/assets/f352b511-501a-45c5-a635-f1b9fdebe770)
+- Code snippets
+*cicd.yaml*
+```
+name: GithubActionsDemo
 
+on:
+  push:
+    branches:
+    - "master"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Install .NET SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+
+    - name: Check out this repo
+      uses: actions/checkout@v4
+
+    - name: Restore dependencies (install Nuget packages)
+      run: dotnet restore
+
+    - name: Build and publish the app
+      run: |
+        dotnet build --no-restore
+        dotnet publish -c Release -o ./publish        
+
+    - name: Upload app artifacts to Github
+      uses: actions/upload-artifact@v4
+      with:
+        name: app-artifacts
+        path: ./publish
+        
+  deploy:
+    runs-on: self-hosted
+    needs: build
+
+    steps:
+    - name: Download the artifacts from Github (from the build job)
+      uses: actions/download-artifact@v4
+      with:
+        name: app-artifacts
+
+    - name: Stop the application service
+      run: |
+        sudo systemctl stop GithubActionsDemo.service        
+
+    - name: Deploy the the application
+      run: |
+        sudo rm -Rf /opt/GithubActionsDemo || true
+        sudo cp -r /home/azureuser/actions-runner/_work/GithubActionsDemo/GithubActionsDemo/ /opt/GithubActionsDemo        
+
+    - name: Start the application service
+      run: |
+        sudo systemctl start GithubActionsDemo.service        
+```
+*GithubActionsDemo.service*
+```
+[Unit]
+Description=ASP.NET Web App running on Ubuntu
+[Service]
+WorkingDirectory=/opt/GithubActionsDemo
+ExecStart=/usr/bin/dotnet /opt/GithubActionsDemo/GithubActionsDemo.dll
+Restart=always
+RestartSec=10
+KillSignal=SIGINT
+SyslogIdentifier=GithubActionsDemo
+User=www-data
+EnvironmentFile=/etc/GithubActionsDemo/.env
+
+[Install]
+WantedBy=multi-user.target
+```
+*.env*
+```
+Environment=ASPNETCORE_ENVIRONMENT=Production
+Environment=DOTNET_PRINT_TELEMETRY_MESSAGE=false
+Environment="ASPNETCORE_URLS=http://*:5000"
+```
 ---
-
-Would you like help generating the actual:
-- GitHub Actions YAML file?
-- `systemd` unit file for your app?
-- Example `.env` file?
-  
-I can create those for you next!
