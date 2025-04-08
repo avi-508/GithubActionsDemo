@@ -40,7 +40,7 @@ My web application is built in **C# using ASP.NET MVC** and deployed in a secure
 
 ---
 
-### ✅ **2. Define Boundaries and Describe Provisioning & Deployment Step-by-Step**
+### ✅ **2.Provisioning & Deployment Step-by-Step**
 
 #### 🔹 **Scope of the Solution**
 The application runs in an **isolated Azure environment**, protected by a VNET. All access is routed through the Bastion Host. Deployment is automated from GitHub to the App Server. Security is a core design principle across provisioning and deployment.
@@ -84,22 +84,26 @@ The application runs in an **isolated Azure environment**, protected by a VNET. 
 ### ✨ **Additional Screenshots**
 - Architecture diagram
   ![Test Diagram2](https://github.com/user-attachments/assets/9e5068a6-1d35-4c9d-8085-6a6b0af2addf)
+  ![Test Diagram](https://github.com/user-attachments/assets/f5a3aa73-deae-460a-b2f1-52f064875056)
 - Topology of Azure Virtual Infrastructure:
-  ![Screenshot 2025-04-07 135505](https://github.com/user-attachments/assets/2003c574-1704-4aba-b27a-abc9384bea25)
-  ![Screenshot 2025-04-07 141609](https://github.com/user-attachments/assets/38d74874-6963-4078-a95e-41dab0ce1cb6)
+  ![Screenshot 2025-04-08 130423](https://github.com/user-attachments/assets/20c66651-a055-485d-973f-3452a55d2ec7)
+  ![Screenshot 2025-04-08 125821](https://github.com/user-attachments/assets/a8cbc2e3-6098-42b1-9149-2fa001dbe17b)
 - NSG och ASG Rules
-  ![Screenshot 2025-04-07 141229](https://github.com/user-attachments/assets/8b423418-7567-4692-84d0-d9b80a59aabd)
+  ![Screenshot 2025-04-08 125955](https://github.com/user-attachments/assets/f3a740d4-804a-4987-bf7a-90621278b075)
 - GitHub Actions workflows Screenshot:
-  ![Screenshot 2025-04-07 140122](https://github.com/user-attachments/assets/f352b511-501a-45c5-a635-f1b9fdebe770)
+  ![Screenshot 2025-04-08 130116](https://github.com/user-attachments/assets/1503d1d8-e5f8-45fb-ac34-083ee54390fe)
+- Screenshots of Webpage from Reverseproxy
+  ![Screenshot 2025-04-08 130557](https://github.com/user-attachments/assets/cea220e3-9bf4-499a-b948-d2d2529b70e5)
+  ![Screenshot 2025-04-08 130650](https://github.com/user-attachments/assets/3b568bda-8d26-4048-ac40-20856ff08c9b)
 - Code snippets
 *cicd.yaml*
 ```
-name: GithubActionsDemo
+name: MyWebApp
 
 on:
   push:
     branches:
-    - "master"
+    - "main"
   workflow_dispatch:
 
 jobs:
@@ -128,7 +132,6 @@ jobs:
       with:
         name: app-artifacts
         path: ./publish
-        
   deploy:
     runs-on: self-hosted
     needs: build
@@ -141,33 +144,35 @@ jobs:
 
     - name: Stop the application service
       run: |
-        sudo systemctl stop GithubActionsDemo.service        
+        sudo systemctl stop MyWebApp.service        
 
     - name: Deploy the the application
       run: |
-        sudo rm -Rf /opt/GithubActionsDemo || true
-        sudo cp -r /home/azureuser/actions-runner/_work/GithubActionsDemo/GithubActionsDemo/ /opt/GithubActionsDemo        
+        sudo rm -Rf /opt/MyWebApp || true
+        sudo cp -r /home/azureuser/actions-runner/_work/MyWebApp/MyWebApp/ /opt/MyWebApp        
 
     - name: Start the application service
       run: |
-        sudo systemctl start GithubActionsDemo.service        
+        sudo systemctl start MyWebApp.service
 ```
 *GithubActionsDemo.service*
 ```
 [Unit]
-Description=ASP.NET Web App running on Ubuntu
-[Service]
-WorkingDirectory=/opt/GithubActionsDemo
-ExecStart=/usr/bin/dotnet /opt/GithubActionsDemo/GithubActionsDemo.dll
-Restart=always
-RestartSec=10
-KillSignal=SIGINT
-SyslogIdentifier=GithubActionsDemo
-User=www-data
-EnvironmentFile=/etc/GithubActionsDemo/.env
+      Description=ASP.NET Web App running on Ubuntu
 
-[Install]
-WantedBy=multi-user.target
+      [Service]
+      WorkingDirectory=/opt/MyWebApp
+      ExecStart=/usr/bin/dotnet /opt/MyWebApp/MyMvcApp.dll
+      Restart=always
+      RestartSec=10
+      KillSignal=SIGINT
+      SyslogIdentifier=MyWebApp
+      User=www-data
+      EnvironmentFile=/etc/MyWebApp/.env
+
+      [Install]
+      WantedBy=multi-user.target
+
 ```
 *.env*
 ```
@@ -176,3 +181,8 @@ Environment=DOTNET_PRINT_TELEMETRY_MESSAGE=false
 Environment="ASPNETCORE_URLS=http://*:5000"
 ```
 ---
+
+### ✨ **Further Enhancements**
+- Further developement can be implemented Azure key vault for storing Environment variables and Coonection string for CosmosDB & Azure Blob storage can be implemented as well. 
+- In Virtual infrastructurem, Further individual subnets can be implemented for BastionhostVM , AppserverVM & ReverseproxyVM.
+- I have used mostly Azure portal, Later on I will have to focus on Infrastructure as code and develop my skills on using CLI & ARM. Overall This project gave me good idea on How Secure infrastructure can be implemeneted on Azure.
