@@ -2,7 +2,7 @@
 
 ---
 
-### ✅ **1. Design a Secure Runtime Environment for Your Web Application**
+### ✅ **1.Secure Runtime Environment for Your Web Application**
 
 #### 🔹 **Architecture Overview**
 My web application is built in **C# using ASP.NET MVC** and deployed in a secure Azure environment. The infrastructure consists of the following components:
